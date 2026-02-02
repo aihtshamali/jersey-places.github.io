@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import heroVideo from "@/assets/jersey-hero-video.mp4";
 import heroImage from "@/assets/jersey-hero.jpg";
 
 const searchTabs = ["For Sale", "To Rent", "Commercial"];
@@ -32,18 +34,40 @@ const parishes = [
 ];
 
 export function Hero() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("For Sale");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedParish, setSelectedParish] = useState("All Parishes");
+  const [selectedBeds, setSelectedBeds] = useState("Any Beds");
+  const [selectedPrice, setSelectedPrice] = useState("Any Price");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    params.set("type", activeTab.toLowerCase().replace(" ", "-"));
+    if (selectedParish !== "All Parishes") params.set("parish", selectedParish);
+    if (selectedBeds !== "Any Beds") params.set("beds", selectedBeds);
+    if (selectedPrice !== "Any Price") params.set("price", selectedPrice);
+    navigate(`/search?${params.toString()}`);
+  };
+
+  const handleChipClick = (chip: string) => {
+    navigate(`/search?filter=${encodeURIComponent(chip)}`);
+  };
 
   return (
     <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center">
-      {/* Background Image */}
+      {/* Video Background */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={heroImage}
-          alt="Jersey coastline"
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster={heroImage}
           className="w-full h-full object-cover"
-        />
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-ocean/80 via-ocean/60 to-ocean-light/50" />
         {/* Wave pattern overlay */}
@@ -102,7 +126,11 @@ export function Hero() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                 {/* Location */}
                 <div className="relative">
-                  <select className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-background text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring">
+                  <select
+                    value={selectedParish}
+                    onChange={(e) => setSelectedParish(e.target.value)}
+                    className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-background text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
                     {parishes.map((parish) => (
                       <option key={parish} value={parish}>
                         {parish}
@@ -114,7 +142,11 @@ export function Hero() {
 
                 {/* Bedrooms */}
                 <div className="relative">
-                  <select className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-background text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring">
+                  <select
+                    value={selectedBeds}
+                    onChange={(e) => setSelectedBeds(e.target.value)}
+                    className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-background text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
                     <option>Any Beds</option>
                     <option>1+ Beds</option>
                     <option>2+ Beds</option>
@@ -127,7 +159,11 @@ export function Hero() {
 
                 {/* Price Range */}
                 <div className="relative">
-                  <select className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-background text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring">
+                  <select
+                    value={selectedPrice}
+                    onChange={(e) => setSelectedPrice(e.target.value)}
+                    className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-background text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
                     <option>Any Price</option>
                     <option>Up to £200,000</option>
                     <option>Up to £300,000</option>
@@ -140,7 +176,7 @@ export function Hero() {
                 </div>
 
                 {/* Search Button */}
-                <Button className="h-12 text-base gap-2">
+                <Button onClick={handleSearch} className="h-12 text-base gap-2">
                   <Search className="w-4 h-4" />
                   Search
                 </Button>
@@ -198,6 +234,7 @@ export function Hero() {
             {quickChips.map((chip) => (
               <button
                 key={chip}
+                onClick={() => handleChipClick(chip)}
                 className="px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground text-sm font-medium hover:bg-primary-foreground/20 transition-colors border border-primary-foreground/20"
               >
                 {chip}
