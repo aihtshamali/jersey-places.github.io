@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Grid, Map } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
 
@@ -146,7 +147,9 @@ export function LatestListings() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
               >
-                <PropertyCard {...listing} />
+                <Link to={`/property/${listing.id}`}>
+                  <PropertyCard {...listing} />
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -169,9 +172,11 @@ export function LatestListings() {
 
         {/* Load More */}
         <div className="text-center mt-10">
-          <Button className="rounded-full px-8">
-            Load More Properties
-          </Button>
+          <Link to="/search">
+            <Button className="rounded-full px-8">
+              Load More Properties
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

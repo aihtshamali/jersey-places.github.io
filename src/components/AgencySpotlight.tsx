@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ArrowRight, Building2, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "./PropertyCard";
@@ -103,10 +104,12 @@ export function AgencySpotlight() {
               </div>
 
               {/* CTA */}
-              <Button className="w-full gap-2">
-                View All Properties
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+              <Link to="/agency/1">
+                <Button className="w-full gap-2">
+                  View All Properties
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </motion.div>
 
@@ -120,7 +123,9 @@ export function AgencySpotlight() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <PropertyCard {...listing} agency={spotlightAgency.name} />
+                <Link to={`/property/${listing.id}`}>
+                  <PropertyCard {...listing} agency={spotlightAgency.name} />
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -128,10 +133,12 @@ export function AgencySpotlight() {
 
         {/* View All Agencies */}
         <div className="text-center mt-10">
-          <Button variant="outline" className="rounded-full px-8 gap-2">
-            Browse All Agencies
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <Link to="/agencies">
+            <Button variant="outline" className="rounded-full px-8 gap-2">
+              Browse All Agencies
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

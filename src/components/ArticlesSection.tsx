@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -55,10 +56,12 @@ export function ArticlesSection() {
             </h2>
           </motion.div>
 
-          <Button variant="ghost" className="gap-2 hidden sm:flex">
-            View All Articles
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <Link to="/articles">
+            <Button variant="ghost" className="gap-2 hidden sm:flex">
+              View All Articles
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
 
         {/* Articles Grid */}
@@ -72,46 +75,50 @@ export function ArticlesSection() {
               transition={{ delay: index * 0.1 }}
               className="group cursor-pointer"
             >
-              {/* Image */}
-              <div className="relative aspect-[16/10] rounded-xl overflow-hidden mb-4">
-                <img
-                  src={article.image}
-                  alt={article.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute top-3 left-3">
-                  <span className="px-3 py-1 rounded-full bg-card/90 backdrop-blur-sm text-xs font-medium text-foreground">
-                    {article.category}
-                  </span>
+              <Link to={`/article/${article.id}`}>
+                {/* Image */}
+                <div className="relative aspect-[16/10] rounded-xl overflow-hidden mb-4">
+                  <img
+                    src={article.image}
+                    alt={article.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="px-3 py-1 rounded-full bg-card/90 backdrop-blur-sm text-xs font-medium text-foreground">
+                      {article.category}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-accent transition-colors line-clamp-2">
-                  {article.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>{article.date}</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {article.readTime}
-                  </span>
+                {/* Content */}
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-accent transition-colors line-clamp-2">
+                    {article.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                    {article.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>{article.date}</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {article.readTime}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </motion.article>
           ))}
         </div>
 
         {/* Mobile CTA */}
         <div className="text-center mt-8 sm:hidden">
-          <Button variant="outline" className="gap-2">
-            View All Articles
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <Link to="/articles">
+            <Button variant="outline" className="gap-2">
+              View All Articles
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

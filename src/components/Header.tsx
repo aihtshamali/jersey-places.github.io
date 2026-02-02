@@ -1,41 +1,47 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Menu, X, ChevronDown, User, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { label: "For Sale", href: "/for-sale" },
-  { label: "To Rent", href: "/to-rent" },
-  { label: "Commercial", href: "/commercial" },
-  { label: "Open Viewings", href: "/open-viewings" },
-  { label: "Sold", href: "/sold" },
+  { label: "For Sale", href: "/search?type=for-sale" },
+  { label: "To Rent", href: "/search?type=to-rent" },
+  { label: "Commercial", href: "/search?type=commercial" },
+  { label: "Open Viewings", href: "/search?filter=Open%20Viewings" },
+  { label: "Sold", href: "/search?type=sold" },
   {
     label: "More",
     children: [
       { label: "Agencies", href: "/agencies" },
-      { label: "Agent Directory", href: "/agents" },
-      { label: "Mortgages", href: "/mortgages" },
+      { label: "Agent Directory", href: "/agencies" },
+      { label: "Mortgages", href: "/articles" },
       { label: "Articles", href: "/articles" },
-      { label: "Guides", href: "/guides" },
+      { label: "Guides", href: "/articles" },
     ],
   },
 ];
 
 export function Header() {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  const handleSearchClick = () => {
+    navigate("/search");
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">P</span>
             </div>
             <span className="font-bold text-xl text-foreground">places.je</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -46,13 +52,13 @@ export function Header() {
                 onMouseEnter={() => item.children && setActiveDropdown(item.label)}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <a
-                  href={item.href || "#"}
+                <Link
+                  to={item.href || "#"}
                   className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
                 >
                   {item.label}
                   {item.children && <ChevronDown className="w-4 h-4" />}
-                </a>
+                </Link>
 
                 {/* Dropdown */}
                 <AnimatePresence>
@@ -65,13 +71,13 @@ export function Header() {
                       className="absolute top-full left-0 mt-1 w-48 bg-card rounded-xl shadow-lg border border-border overflow-hidden"
                     >
                       {item.children.map((child) => (
-                        <a
+                        <Link
                           key={child.label}
-                          href={child.href}
+                          to={child.href}
                           className="block px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                         >
                           {child.label}
-                        </a>
+                        </Link>
                       ))}
                     </motion.div>
                   )}
@@ -88,7 +94,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <User className="w-5 h-5" />
             </Button>
-            <Button className="hidden sm:flex gap-2">
+            <Button onClick={handleSearchClick} className="hidden sm:flex gap-2">
               <Search className="w-4 h-4" />
               Search
             </Button>
@@ -117,22 +123,24 @@ export function Header() {
               <nav className="py-4 space-y-1">
                 {navItems.map((item) => (
                   <div key={item.label}>
-                    <a
-                      href={item.href || "#"}
+                    <Link
+                      to={item.href || "#"}
                       className="block px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.label}
-                    </a>
+                    </Link>
                     {item.children && (
                       <div className="ml-4 mt-1 space-y-1">
                         {item.children.map((child) => (
-                          <a
+                          <Link
                             key={child.label}
-                            href={child.href}
+                            to={child.href}
                             className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
+                            onClick={() => setMobileMenuOpen(false)}
                           >
                             {child.label}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     )}
@@ -143,7 +151,7 @@ export function Header() {
                     <User className="w-4 h-4 mr-2" />
                     Sign In
                   </Button>
-                  <Button className="flex-1">
+                  <Button onClick={handleSearchClick} className="flex-1">
                     <Search className="w-4 h-4 mr-2" />
                     Search
                   </Button>

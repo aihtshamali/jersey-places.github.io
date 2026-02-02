@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
 
@@ -144,16 +145,20 @@ export function FeaturedListings() {
               transition={{ delay: index * 0.1 }}
               className="flex-shrink-0 w-[300px] sm:w-[320px] snap-start"
             >
-              <PropertyCard {...listing} />
+              <Link to={`/property/${listing.id}`}>
+                <PropertyCard {...listing} />
+              </Link>
             </motion.div>
           ))}
         </div>
 
         {/* View All */}
         <div className="text-center mt-8">
-          <Button variant="outline" className="rounded-full px-8">
-            View All Featured Properties
-          </Button>
+          <Link to="/search?type=for-sale">
+            <Button variant="outline" className="rounded-full px-8">
+              View All Featured Properties
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

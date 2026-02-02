@@ -1,30 +1,31 @@
+import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 
 const footerLinks = {
   Properties: [
-    { label: "For Sale", href: "/for-sale" },
-    { label: "To Rent", href: "/to-rent" },
-    { label: "Commercial", href: "/commercial" },
-    { label: "Open Viewings", href: "/open-viewings" },
-    { label: "Sold Properties", href: "/sold" },
+    { label: "For Sale", href: "/search?type=for-sale" },
+    { label: "To Rent", href: "/search?type=to-rent" },
+    { label: "Commercial", href: "/search?type=commercial" },
+    { label: "Open Viewings", href: "/search?filter=Open%20Viewings" },
+    { label: "Sold Properties", href: "/search?type=sold" },
   ],
   Resources: [
     { label: "Articles", href: "/articles" },
-    { label: "Guides", href: "/guides" },
-    { label: "Mortgage Rates", href: "/mortgages" },
-    { label: "Market Reports", href: "/reports" },
+    { label: "Guides", href: "/articles" },
+    { label: "Mortgage Rates", href: "/articles" },
+    { label: "Market Reports", href: "/articles" },
   ],
   Agencies: [
     { label: "All Agencies", href: "/agencies" },
-    { label: "Agent Directory", href: "/agents" },
-    { label: "List Your Property", href: "/list" },
-    { label: "Agent Login", href: "/agent-login" },
+    { label: "Agent Directory", href: "/agencies" },
+    { label: "List Your Property", href: "/agencies" },
+    { label: "Agent Login", href: "/agencies" },
   ],
   Company: [
-    { label: "About Us", href: "/about" },
-    { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
+    { label: "About Us", href: "/articles" },
+    { label: "Contact", href: "/articles" },
+    { label: "Privacy Policy", href: "/articles" },
+    { label: "Terms of Service", href: "/articles" },
   ],
 };
 
@@ -43,12 +44,12 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-4 lg:mb-0">
-            <a href="/" className="flex items-center gap-2 mb-4">
+            <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
                 <span className="text-accent-foreground font-bold text-sm">P</span>
               </div>
               <span className="font-bold text-xl">places.je</span>
-            </a>
+            </Link>
             <p className="text-background/60 text-sm mb-4">
               Jersey's trusted property portal. Find your perfect place on the island.
             </p>
@@ -74,12 +75,12 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className="text-sm text-background/60 hover:text-background transition-colors"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
