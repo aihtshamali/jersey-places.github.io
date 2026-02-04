@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import heroVideo from "@/assets/jersey-hero-video.mp4";
-import heroImage from "@/assets/jersey-hero.jpg";
+import { HeroBackground } from "@/components/HeroBackground";
 
 const searchTabs = ["For Sale", "To Rent", "Commercial"];
 const quickChips = [
@@ -56,23 +55,8 @@ export function Hero() {
 
   return (
     <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center">
-      {/* Video Background */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster={heroImage}
-          className="w-full h-full object-cover"
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean/80 via-ocean/60 to-ocean-light/50" />
-        {/* Wave pattern overlay */}
-        <div className="absolute inset-0 jersey-wave-pattern opacity-30" />
-      </div>
+      {/* Multi-Scene Background with Crossfade */}
+      <HeroBackground />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 py-16 lg:py-24">
