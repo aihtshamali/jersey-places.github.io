@@ -4,13 +4,13 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
+
 export default defineConfig(({ mode }) => ({
+  base: "/jersey-places.github.io/",
   server: {
     host: "::",
     port: 8080,
-    hmr: {
-      overlay: false,
-    },
+    hmr: { overlay: false },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
@@ -19,3 +19,4 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
+
