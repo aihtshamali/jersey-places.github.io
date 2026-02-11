@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Building2, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "./PropertyCard";
+import { GlassyLogo } from "./GlassyLogo";
+import { useFavorites } from "@/hooks/useFavorites";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
@@ -42,6 +44,7 @@ const spotlightAgency = {
 };
 
 export function AgencySpotlight() {
+  const { isFavorite, toggleFavorite } = useFavorites();
   return (
     <section className="py-16 lg:py-24 bg-secondary">
       <div className="container mx-auto px-4 sm:px-6">
@@ -70,11 +73,7 @@ export function AgencySpotlight() {
             <div className="bg-card rounded-2xl p-6 shadow-card h-full">
               {/* Logo and Name */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-2xl">
-                    {spotlightAgency.logo}
-                  </span>
-                </div>
+                <GlassyLogo letter={spotlightAgency.logo} size="lg" />
                 <div>
                   <h3 className="font-bold text-lg text-foreground">
                     {spotlightAgency.name}
@@ -124,7 +123,7 @@ export function AgencySpotlight() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link to={`/property/${listing.id}`}>
-                  <PropertyCard {...listing} agency={spotlightAgency.name} />
+                  <PropertyCard {...listing} agency={spotlightAgency.name} isSaved={isFavorite(listing.id)} onToggleSave={toggleFavorite} />
                 </Link>
               </motion.div>
             ))}
