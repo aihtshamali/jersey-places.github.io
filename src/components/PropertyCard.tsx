@@ -1,8 +1,9 @@
-import { motion } from "framer-motion";
-import { Heart, Share2, Bed, Bath, Car, MapPin } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Share2, Bed, Bath, Car, MapPin, Check } from "lucide-react";
 import { useState } from "react";
 
 interface PropertyCardProps {
+  id?: number;
   image: string;
   price: string;
   address: string;
@@ -15,9 +16,12 @@ interface PropertyCardProps {
   hasOpenViewing?: boolean;
   qualification?: "Qualified" | "Unqualified";
   agency?: string;
+  isSaved?: boolean;
+  onToggleSave?: (id: number) => void;
 }
 
 export function PropertyCard({
+  id,
   image,
   price,
   address,
@@ -30,8 +34,22 @@ export function PropertyCard({
   hasOpenViewing,
   qualification,
   agency,
+  isSaved = false,
+  onToggleSave,
 }: PropertyCardProps) {
-  const [isSaved, setIsSaved] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleSave && id !== undefined) {
+      onToggleSave(id);
+      if (!isSaved) {
+        setJustSaved(true);
+        setTimeout(() => setJustSaved(false), 1200);
+      }
+    }
+  };
 
   return (
     <motion.article
@@ -69,15 +87,43 @@ export function PropertyCard({
         {/* Quick Actions */}
         <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => setIsSaved(!isSaved)}
-            className="w-9 h-9 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center hover:bg-card transition-colors"
+            onClick={handleSave}
+            className="w-9 h-9 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center hover:bg-card transition-colors relative overflow-hidden"
             aria-label="Save property"
           >
-            <Heart
-              className={`w-4 h-4 ${
-                isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"
-              }`}
-            />
+            <AnimatePresence mode="wait">
+              {justSaved ? (
+                <motion.div
+                  key="check"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                >
+                  <Check className="w-4 h-4 text-accent" />
+                </motion.div>
+              ) : (
+                <motion.div key="heart" initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
+                  <Heart
+                    className={`w-4 h-4 transition-colors ${
+                      isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"
+                    }`}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {/* Ripple effect on save */}
+            <AnimatePresence>
+              {justSaved && (
+                <motion.span
+                  initial={{ scale: 0, opacity: 0.5 }}
+                  animate={{ scale: 3, opacity: 0 }}
+                  exit={{}}
+                  transition={{ duration: 0.6 }}
+                  className="absolute inset-0 rounded-full bg-accent"
+                />
+              )}
+            </AnimatePresence>
           </button>
           <button
             className="w-9 h-9 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center hover:bg-card transition-colors"
@@ -105,26 +151,17 @@ export function PropertyCard({
 
       {/* Content */}
       <div className="p-4">
-        {/* Price */}
         <div className="flex items-baseline justify-between mb-2">
           <span className="text-xl font-bold text-foreground">{price}</span>
           {agency && (
             <span className="text-xs text-muted-foreground">{agency}</span>
           )}
         </div>
-
-        {/* Address */}
-        <h3 className="font-medium text-foreground mb-1 line-clamp-1">
-          {address}
-        </h3>
-
-        {/* Location */}
+        <h3 className="font-medium text-foreground mb-1 line-clamp-1">{address}</h3>
         <div className="flex items-center gap-1 text-muted-foreground text-sm mb-3">
           <MapPin className="w-3.5 h-3.5" />
           {parish}
         </div>
-
-        {/* Features */}
         <div className="flex items-center gap-4 pt-3 border-t border-border">
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <Bed className="w-4 h-4" />

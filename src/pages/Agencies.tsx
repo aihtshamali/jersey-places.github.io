@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { Search, MapPin, Building2, Star } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { GlassyLogo } from "@/components/GlassyLogo";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 const agencies = [
   { id: 1, name: "Broadlands Estate Agents", logo: "B", location: "St Helier", properties: 127, rating: 4.8, description: "One of Jersey's most trusted estate agencies since 1976." },
@@ -31,66 +31,34 @@ export default function Agencies() {
       <Header />
       <main className="py-12 lg:py-16">
         <div className="container mx-auto px-4 sm:px-6">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mb-10"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mb-10">
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">Estate Agencies</h1>
-            <p className="text-lg text-muted-foreground">
-              Browse Jersey's verified estate agents. All agencies on places.je are approved and regulated.
-            </p>
+            <p className="text-lg text-muted-foreground">Browse Jersey's verified estate agents.</p>
           </motion.div>
 
-          {/* Search */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="max-w-md mb-10"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="max-w-md mb-10">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search agencies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Search agencies..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
             </div>
           </motion.div>
 
-          {/* Agencies Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredAgencies.map((agency, index) => (
-              <motion.div
-                key={agency.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
+              <motion.div key={agency.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
                 <Link to={`/agency/${agency.id}`} className="group block">
                   <div className="bg-card rounded-2xl p-6 border border-border hover:shadow-card-hover transition-all h-full">
                     <div className="flex items-start gap-4 mb-4">
-                      <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
-                        <span className="text-primary-foreground font-bold text-xl">{agency.logo}</span>
-                      </div>
+                      <GlassyLogo letter={agency.logo} />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors truncate">
-                          {agency.name}
-                        </h3>
+                        <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors truncate">{agency.name}</h3>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <MapPin className="w-3 h-3" />
                           {agency.location}
                         </div>
                       </div>
                     </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {agency.description}
-                    </p>
-
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{agency.description}</p>
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-1 text-muted-foreground">
                         <Building2 className="w-4 h-4" />

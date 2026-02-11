@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
+import { useFavorites } from "@/hooks/useFavorites";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
@@ -91,6 +92,7 @@ const latestListings = [
 
 export function LatestListings() {
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   return (
     <section className="py-16 lg:py-24 bg-secondary">
@@ -148,7 +150,7 @@ export function LatestListings() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Link to={`/property/${listing.id}`}>
-                  <PropertyCard {...listing} />
+                  <PropertyCard {...listing} isSaved={isFavorite(listing.id)} onToggleSave={toggleFavorite} />
                 </Link>
               </motion.div>
             ))}
