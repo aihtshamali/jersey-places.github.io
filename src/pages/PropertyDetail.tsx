@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Share2, Bed, Bath, Car, MapPin, Calendar, Phone, Mail, ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
+import { Heart, Share2, Bed, Bath, Car, MapPin, Calendar, Phone, Mail } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyGallery } from "@/components/PropertyGallery";
+import { GlassyLogo } from "@/components/GlassyLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useFavorites } from "@/hooks/useFavorites";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
@@ -53,74 +56,21 @@ const similarProperties = [
 
 export default function PropertyDetail() {
   const { id } = useParams();
-  const [currentImage, setCurrentImage] = useState(0);
-  const [showGallery, setShowGallery] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: `I'm interested in ${propertyData.address}, ${propertyData.parish}. Please contact me with more details.` });
-
-  const nextImage = () => setCurrentImage((prev) => (prev + 1) % propertyData.images.length);
-  const prevImage = () => setCurrentImage((prev) => (prev - 1 + propertyData.images.length) % propertyData.images.length);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Fullscreen Gallery */}
-      {showGallery && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 bg-black flex items-center justify-center"
-        >
-          <button onClick={() => setShowGallery(false)} className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full">
-            <X className="w-6 h-6" />
-          </button>
-          <button onClick={prevImage} className="absolute left-4 text-white p-3 hover:bg-white/10 rounded-full">
-            <ChevronLeft className="w-8 h-8" />
-          </button>
-          <img src={propertyData.images[currentImage]} alt="" className="max-h-[90vh] max-w-[90vw] object-contain" />
-          <button onClick={nextImage} className="absolute right-4 text-white p-3 hover:bg-white/10 rounded-full">
-            <ChevronRight className="w-8 h-8" />
-          </button>
-          <div className="absolute bottom-4 flex gap-2">
-            {propertyData.images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentImage(i)}
-                className={`w-2 h-2 rounded-full ${i === currentImage ? "bg-white" : "bg-white/40"}`}
-              />
-            ))}
-          </div>
-        </motion.div>
-      )}
 
       <main className="pb-16">
-        {/* Image Gallery */}
-        <div className="relative">
-          <div className="grid grid-cols-4 gap-1 h-[400px] lg:h-[500px]">
-            <div className="col-span-4 lg:col-span-2 lg:row-span-2 relative">
-              <img src={propertyData.images[0]} alt="" className="w-full h-full object-cover" />
-            </div>
-            {propertyData.images.slice(1, 5).map((img, i) => (
-              <div key={i} className="hidden lg:block relative">
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={() => setShowGallery(true)}
-            className="absolute bottom-4 right-4 bg-card/90 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-card transition-colors"
-          >
-            <Expand className="w-4 h-4" />
-            View All Photos
-          </button>
-        </div>
+        {/* Photo Gallery */}
+        <PropertyGallery images={propertyData.images} address={propertyData.address} />
 
         <div className="container mx-auto px-4 sm:px-6 py-8">
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Header */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
@@ -137,8 +87,8 @@ export default function PropertyDetail() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="icon" onClick={() => setIsSaved(!isSaved)}>
-                      <Heart className={`w-5 h-5 ${isSaved ? "fill-destructive text-destructive" : ""}`} />
+                    <Button variant="outline" size="icon" onClick={() => toggleFavorite(propertyData.id)}>
+                      <Heart className={`w-5 h-5 transition-colors ${isFavorite(propertyData.id) ? "fill-destructive text-destructive" : ""}`} />
                     </Button>
                     <Button variant="outline" size="icon">
                       <Share2 className="w-5 h-5" />
@@ -146,7 +96,6 @@ export default function PropertyDetail() {
                   </div>
                 </div>
 
-                {/* Key Features */}
                 <div className="flex flex-wrap gap-6 py-4 border-y border-border">
                   <div className="flex items-center gap-2">
                     <Bed className="w-5 h-5 text-muted-foreground" />
@@ -203,11 +152,8 @@ export default function PropertyDetail() {
                 animate={{ opacity: 1, x: 0 }}
                 className="sticky top-24 bg-card rounded-2xl shadow-card p-6 border border-border"
               >
-                {/* Agency */}
                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
-                  <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-xl">{propertyData.agency.logo}</span>
-                  </div>
+                  <GlassyLogo letter={propertyData.agency.logo} />
                   <div>
                     <Link to="/agency/1" className="font-semibold text-foreground hover:text-accent transition-colors">
                       {propertyData.agency.name}
@@ -216,34 +162,14 @@ export default function PropertyDetail() {
                   </div>
                 </div>
 
-                {/* Contact Form */}
                 <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                  <Input
-                    placeholder="Your name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Your email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                  <Input
-                    type="tel"
-                    placeholder="Your phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  />
-                  <Textarea
-                    rows={4}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  />
+                  <Input placeholder="Your name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                  <Input type="email" placeholder="Your email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                  <Input type="tel" placeholder="Your phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                  <Textarea rows={4} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} />
                   <Button className="w-full">Send Enquiry</Button>
                 </form>
 
-                {/* Quick Actions */}
                 <div className="flex gap-3 mt-4">
                   <Button variant="outline" className="flex-1 gap-2">
                     <Phone className="w-4 h-4" />
@@ -269,7 +195,11 @@ export default function PropertyDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {similarProperties.map((property) => (
                 <Link key={property.id} to={`/property/${property.id}`}>
-                  <PropertyCard {...property} />
+                  <PropertyCard
+                    {...property}
+                    isSaved={isFavorite(property.id)}
+                    onToggleSave={toggleFavorite}
+                  />
                 </Link>
               ))}
             </div>

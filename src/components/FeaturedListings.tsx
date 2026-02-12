@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
+import { useFavorites } from "@/hooks/useFavorites";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
@@ -68,6 +69,7 @@ export function FeaturedListings() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -146,7 +148,7 @@ export function FeaturedListings() {
               className="flex-shrink-0 w-[300px] sm:w-[320px] snap-start"
             >
               <Link to={`/property/${listing.id}`}>
-                <PropertyCard {...listing} />
+                <PropertyCard {...listing} isSaved={isFavorite(listing.id)} onToggleSave={toggleFavorite} />
               </Link>
             </motion.div>
           ))}

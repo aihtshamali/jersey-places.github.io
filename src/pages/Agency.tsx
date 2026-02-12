@@ -5,8 +5,10 @@ import { MapPin, Phone, Mail, Globe, Clock, Building2, Users, Star } from "lucid
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PropertyCard } from "@/components/PropertyCard";
+import { GlassyLogo } from "@/components/GlassyLogo";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useFavorites } from "@/hooks/useFavorites";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
@@ -62,6 +64,7 @@ const testimonials = [
 export default function Agency() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("properties");
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,9 +78,7 @@ export default function Agency() {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col lg:flex-row items-start gap-8"
             >
-              <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl bg-primary-foreground/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-4xl lg:text-5xl font-bold">{agencyData.logo}</span>
-              </div>
+              <GlassyLogo letter={agencyData.logo} size="xl" />
               <div className="flex-1">
                 <h1 className="text-3xl lg:text-4xl font-bold mb-2">{agencyData.name}</h1>
                 <p className="text-primary-foreground/80 text-lg mb-6">{agencyData.tagline}</p>
@@ -130,7 +131,7 @@ export default function Agency() {
                         transition={{ delay: index * 0.05 }}
                       >
                         <Link to={`/property/${property.id}`}>
-                          <PropertyCard {...property} agency={agencyData.name} />
+                          <PropertyCard {...property} agency={agencyData.name} isSaved={isFavorite(property.id)} onToggleSave={toggleFavorite} />
                         </Link>
                       </motion.div>
                     ))}
