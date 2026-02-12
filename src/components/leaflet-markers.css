@@ -72,9 +72,19 @@
   animation: dash-flow 1s linear infinite;
 }
 
+.hover-line-animation-svg {
+  animation: dash-flow-svg 0.8s linear infinite;
+}
+
 @keyframes dash-flow {
   to {
     stroke-dashoffset: -12;
+  }
+}
+
+@keyframes dash-flow-svg {
+  to {
+    stroke-dashoffset: -13;
   }
 }
 
