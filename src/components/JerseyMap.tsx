@@ -51,10 +51,12 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<number, L.Marker>>({});
-  const lineRef = useRef<L.Polyline | null>(null);
+  
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [lineCoords, setLineCoords] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const suggestedRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Init map
   useEffect(() => {
@@ -117,15 +119,13 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
     });
   }, [properties, onPropertyClick]);
 
-  // Highlight hovered marker + draw line
+  // Highlight hovered marker + draw SVG line from card to pin
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-
-    // Remove old line
-    if (lineRef.current) {
-      lineRef.current.remove();
-      lineRef.current = null;
+    const container = containerRef.current;
+    if (!map || !container) {
+      setLineCoords(null);
+      return;
     }
 
     // Reset all markers
@@ -138,24 +138,27 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
       const pill = document.querySelector(`.price-pill[data-id="${hoveredId}"]`);
       if (pill) pill.classList.add("hovered");
 
-      // Draw line from bottom of map to marker
+      // Find the hovered card element
+      const card = container.querySelector(`[data-property-id="${hoveredId}"]`) as HTMLElement;
       const prop = properties.find((p) => p.id === hoveredId);
-      if (prop) {
-        const coords = getPropertyCoords(prop);
-        const mapBounds = map.getBounds();
-        const bottomCenter = L.latLng(mapBounds.getSouth(), coords.lng);
+      
+      if (prop && card && pill) {
+        const containerRect = container.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const pillRect = pill.getBoundingClientRect();
 
-        lineRef.current = L.polyline(
-          [bottomCenter, [coords.lat, coords.lng]],
-          {
-            color: "#1a8a7a",
-            weight: 3,
-            opacity: 1,
-            dashArray: "8, 6",
-            className: "hover-line-animation",
-          }
-        ).addTo(map);
+        // Line from top-center of card to bottom-center of pin
+        setLineCoords({
+          x1: cardRect.left + cardRect.width / 2 - containerRect.left,
+          y1: cardRect.top - containerRect.top,
+          x2: pillRect.left + pillRect.width / 2 - containerRect.left,
+          y2: pillRect.bottom - containerRect.top,
+        });
+      } else {
+        setLineCoords(null);
       }
+    } else {
+      setLineCoords(null);
     }
   }, [hoveredId, properties]);
 
@@ -169,7 +172,24 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
   const selectedProp = properties.find((p) => p.id === selectedId);
 
   return (
-    <div className="flex flex-col gap-0 rounded-2xl overflow-hidden border border-border bg-card shadow-lg">
+    <div ref={containerRef} className="relative flex flex-col gap-0 rounded-2xl overflow-hidden border border-border bg-card shadow-lg max-w-full">
+      {/* SVG line overlay */}
+      {lineCoords && (
+        <svg className="absolute inset-0 w-full h-full z-[999] pointer-events-none">
+          <line
+            x1={lineCoords.x1}
+            y1={lineCoords.y1}
+            x2={lineCoords.x2}
+            y2={lineCoords.y2}
+            stroke="#1a8a7a"
+            strokeWidth="2.5"
+            strokeDasharray="8 5"
+            className="hover-line-animation-svg"
+          />
+          <circle cx={lineCoords.x2} cy={lineCoords.y2} r="4" fill="#1a8a7a" />
+          <circle cx={lineCoords.x1} cy={lineCoords.y1} r="4" fill="#1a8a7a" />
+        </svg>
+      )}
       {/* Map */}
       <div className="relative w-full h-[500px] lg:h-[600px]">
         <div ref={mapContainerRef} className="absolute inset-0 z-0" />
@@ -241,6 +261,7 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
                 mapRef.current?.panTo([coords.lat, coords.lng], { animate: true });
               }}
               whileHover={{ y: -4 }}
+              data-property-id={prop.id}
               className={`flex-shrink-0 w-56 rounded-lg border overflow-hidden cursor-pointer transition-all duration-200 ${
                 hoveredId === prop.id || selectedId === prop.id
                   ? "border-accent shadow-md ring-1 ring-accent/30"
