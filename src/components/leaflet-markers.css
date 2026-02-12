@@ -1,0 +1,101 @@
+/* Leaflet custom marker styles */
+.jersey-price-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.price-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(0 0% 100%);
+  border: 2px solid hsl(0 0% 100%);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: hsl(210 30% 18%);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.price-pill::after {
+  content: "";
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid hsl(0 0% 100%);
+}
+
+.price-pill:hover,
+.price-pill.hovered {
+  background: hsl(175 35% 45%);
+  border-color: hsl(175 35% 45%);
+  color: white;
+  transform: scale(1.1);
+  z-index: 1000 !important;
+}
+
+.price-pill.hovered::after,
+.price-pill:hover::after {
+  border-top-color: hsl(175 35% 45%);
+}
+
+.price-pill.selected {
+  background: hsl(205 55% 22%);
+  border-color: hsl(205 55% 22%);
+  color: white;
+  transform: scale(1.15);
+  z-index: 1001 !important;
+}
+
+.price-pill.selected::after {
+  border-top-color: hsl(205 55% 22%);
+}
+
+/* Dashed line animation */
+.hover-line-animation {
+  animation: dash-flow 1s linear infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Scrollbar for property strip */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: hsl(210 15% 80%);
+  border-radius: 999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: hsl(210 15% 65%);
+}
+
+/* Fix Leaflet z-index issues */
+.leaflet-pane {
+  z-index: 1;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 500;
+}
