@@ -67,22 +67,10 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
       attributionControl: false,
     });
 
-    // Satellite-style tiles (Esri World Imagery)
+    // Clean modern map tiles (CartoDB Voyager - Google Maps style)
     L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: 19 }
-    ).addTo(map);
-
-    // Road labels overlay
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: 19, opacity: 0.7 }
-    ).addTo(map);
-
-    // Place name labels
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: 19, opacity: 0.8 }
+      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+      { maxZoom: 20, subdomains: "abcd" }
     ).addTo(map);
 
     // Zoom control bottom-right
@@ -114,8 +102,8 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
       const priceIcon = L.divIcon({
         className: "jersey-price-marker",
         html: `<div class="price-pill" data-id="${prop.id}"><span>${prop.price}</span></div>`,
-        iconSize: [0, 0],
-        iconAnchor: [50, 40],
+        iconSize: [120, 40],
+        iconAnchor: [60, 45],
       });
 
       const marker = L.marker([coords.lat, coords.lng], { icon: priceIcon }).addTo(map);
@@ -160,10 +148,10 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
         lineRef.current = L.polyline(
           [bottomCenter, [coords.lat, coords.lng]],
           {
-            color: "hsl(175, 35%, 45%)",
-            weight: 2,
-            opacity: 0.8,
-            dashArray: "6, 6",
+            color: "#1a8a7a",
+            weight: 3,
+            opacity: 1,
+            dashArray: "8, 6",
             className: "hover-line-animation",
           }
         ).addTo(map);
