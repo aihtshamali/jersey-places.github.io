@@ -14,8 +14,7 @@
     "test:watch": "vitest",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d dist"
-  
-},
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
