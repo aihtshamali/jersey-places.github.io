@@ -37,7 +37,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src="/jersey-places.github.io/places.logo.png" width={"30%"} alt="Jersey Places" />
+            <img src="/places.logo.png" width={"30%"} alt="Jersey Places" />
           </Link>
 
           {/* Desktop Navigation */}
