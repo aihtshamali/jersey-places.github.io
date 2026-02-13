@@ -64,9 +64,9 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
 
     const map = L.map(mapContainerRef.current, {
       center: [49.2100, -2.1300],
-      zoom: 13,
+      zoom: 12.4,
       zoomControl: false,
-      attributionControl: false,
+      attributionControl: true,
     });
 
     // Clean modern map tiles (CartoDB Voyager - Google Maps style)

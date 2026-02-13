@@ -243,7 +243,7 @@ export default function Search() {
             )}
 
             {/* Results */}
-            <div className="flex-1">
+            <div className="flex-1" style={{ width: "-webkit-fill-available"}}>
               {viewMode === "grid" ? (
                 <>
                   {filteredProperties.length === 0 ? (

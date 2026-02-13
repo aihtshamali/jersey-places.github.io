@@ -37,10 +37,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">P</span>
-            </div>
-            <span className="font-bold text-xl text-foreground">places.je</span>
+            <img src="/jersey-places.github.io/places.logo.png" width={"30%"} alt="Jersey Places" />
           </Link>
 
           {/* Desktop Navigation */}
