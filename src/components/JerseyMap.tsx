@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bed, Bath, MapPin, Heart, ExternalLink } from "lucide-react";
+import { Bed, Bath, MapPin, ExternalLink } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./leaflet-markers.css";
@@ -41,7 +41,6 @@ const parishCoords: Record<string, { lat: number; lng: number }> = {
 
 function getPropertyCoords(prop: MapProperty): { lat: number; lng: number } {
   const base = parishCoords[prop.parish] || { lat: 49.2100, lng: -2.1300 };
-  // Deterministic jitter based on id
   const jitterLat = ((prop.id * 17) % 11 - 5) * 0.002;
   const jitterLng = ((prop.id * 13) % 11 - 5) * 0.003;
   return { lat: base.lat + jitterLat, lng: base.lng + jitterLng };
@@ -51,12 +50,93 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<number, L.Marker>>({});
-  
+
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [lineCoords, setLineCoords] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const suggestedRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Compute SVG line between a strip card and its map marker pill.
+  // Both rects are measured relative to containerRef so the SVG (which is
+  // positioned absolute inside containerRef) lines up correctly.
+  const computeLine = useCallback((id: number) => {
+    const container = containerRef.current;
+    if (!container) { setLineCoords(null); return; }
+
+    const card = container.querySelector(`[data-property-id="${id}"]`) as HTMLElement | null;
+    const pill = container.querySelector(`.price-pill[data-id="${id}"]`) as HTMLElement | null;
+
+    if (!card || !pill) { setLineCoords(null); return; }
+
+    const containerRect = container.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const pillRect = pill.getBoundingClientRect();
+
+    // Card may be partially outside the visible scroll container — only draw
+    // if its centre is actually inside the container's bounding box.
+    const cardCenterX = cardRect.left + cardRect.width / 2;
+    const cardCenterY = cardRect.top + cardRect.height / 2;
+    if (
+      cardCenterX < containerRect.left ||
+      cardCenterX > containerRect.right ||
+      cardCenterY < containerRect.top ||
+      cardCenterY > containerRect.bottom
+    ) {
+      setLineCoords(null);
+      return;
+    }
+
+    setLineCoords({
+      x1: cardRect.left + cardRect.width / 2 - containerRect.left,
+      y1: cardRect.top - containerRect.top,
+      x2: pillRect.left + pillRect.width / 2 - containerRect.left,
+      y2: pillRect.bottom - containerRect.top,
+    });
+  }, []);
+
+  // Scroll a strip card into view (horizontal scroll inside the strip), then
+  // recompute the line once the browser has painted the new position.
+  const scrollCardIntoView = useCallback((id: number, afterScroll: () => void) => {
+    const container = containerRef.current;
+    const strip = suggestedRef.current;
+    if (!container || !strip) { afterScroll(); return; }
+
+    const card = container.querySelector(`[data-property-id="${id}"]`) as HTMLElement | null;
+    if (!card) { afterScroll(); return; }
+
+    const stripRect = strip.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+
+    const isInView =
+      cardRect.left >= stripRect.left &&
+      cardRect.right <= stripRect.right;
+
+    if (!isInView) {
+      // Centre the card horizontally within the scrollable strip
+      const targetScroll =
+        strip.scrollLeft +
+        (cardRect.left - stripRect.left) -
+        stripRect.width / 2 +
+        cardRect.width / 2;
+
+      strip.scrollTo({ left: targetScroll, behavior: "smooth" });
+
+      // Wait for scroll to finish before measuring positions
+      const onScrollEnd = () => {
+        strip.removeEventListener("scrollend", onScrollEnd);
+        requestAnimationFrame(afterScroll);
+      };
+      // scrollend may not fire in all browsers; fallback to timeout
+      strip.addEventListener("scrollend", onScrollEnd, { once: true });
+      setTimeout(() => {
+        strip.removeEventListener("scrollend", onScrollEnd);
+        requestAnimationFrame(afterScroll);
+      }, 400);
+    } else {
+      requestAnimationFrame(afterScroll);
+    }
+  }, []);
 
   // Init map
   useEffect(() => {
@@ -69,16 +149,12 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
       attributionControl: true,
     });
 
-    // Clean modern map tiles (CartoDB Voyager - Google Maps style)
     L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
       { maxZoom: 20, subdomains: "abcd" }
     ).addTo(map);
 
-    // Zoom control bottom-right
     L.control.zoom({ position: "bottomright" }).addTo(map);
-
-    // Attribution small
     L.control.attribution({ position: "bottomleft", prefix: false }).addTo(map);
 
     mapRef.current = map;
@@ -89,12 +165,11 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
     };
   }, []);
 
-  // Add markers
+  // Add / refresh markers
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Clear old markers
     Object.values(markersRef.current).forEach((m) => m.remove());
     markersRef.current = {};
 
@@ -111,63 +186,49 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
       const marker = L.marker([coords.lat, coords.lng], { icon: priceIcon }).addTo(map);
 
       marker.on("click", () => {
-        setSelectedId((prev) => (prev === prop.id ? null : prop.id));
-        onPropertyClick?.(prop.id);
+        const newId = prop.id;
+        setSelectedId((prev) => (prev === newId ? null : newId));
+        setHoveredId(null);
+        onPropertyClick?.(newId);
+
+        scrollCardIntoView(newId, () => computeLine(newId));
+      });
+
+      marker.on("mouseover", () => {
+        setHoveredId(prop.id);
+        scrollCardIntoView(prop.id, () => computeLine(prop.id));
+      });
+
+      marker.on("mouseout", () => {
+        setHoveredId(null);
+        setLineCoords(null);
       });
 
       markersRef.current[prop.id] = marker;
     });
-  }, [properties, onPropertyClick]);
+  }, [properties, onPropertyClick, computeLine, scrollCardIntoView]);
 
-  // Highlight hovered marker + draw SVG line from card to pin
+  // Sync pill highlight classes — scoped to this component's container
   useEffect(() => {
-    const map = mapRef.current;
     const container = containerRef.current;
-    if (!map || !container) {
-      setLineCoords(null);
-      return;
-    }
+    if (!container) return;
 
-    // Reset all markers
-    document.querySelectorAll(".price-pill").forEach((el) => {
-      el.classList.remove("hovered");
+    container.querySelectorAll(".price-pill").forEach((el) => {
+      const id = Number(el.getAttribute("data-id"));
+      el.classList.toggle("hovered", id === hoveredId);
+      el.classList.toggle("selected", id === selectedId);
     });
+  }, [hoveredId, selectedId]);
 
-    if (hoveredId !== null) {
-      // Highlight marker
-      const pill = document.querySelector(`.price-pill[data-id="${hoveredId}"]`);
-      if (pill) pill.classList.add("hovered");
-
-      // Find the hovered card element
-      const card = container.querySelector(`[data-property-id="${hoveredId}"]`) as HTMLElement;
-      const prop = properties.find((p) => p.id === hoveredId);
-      
-      if (prop && card && pill) {
-        const containerRect = container.getBoundingClientRect();
-        const cardRect = card.getBoundingClientRect();
-        const pillRect = pill.getBoundingClientRect();
-
-        // Line from top-center of card to bottom-center of pin
-        setLineCoords({
-          x1: cardRect.left + cardRect.width / 2 - containerRect.left,
-          y1: cardRect.top - containerRect.top,
-          x2: pillRect.left + pillRect.width / 2 - containerRect.left,
-          y2: pillRect.bottom - containerRect.top,
-        });
-      } else {
-        setLineCoords(null);
-      }
-    } else {
-      setLineCoords(null);
-    }
-  }, [hoveredId, properties]);
-
-  // Highlight selected marker
+  // Recompute line when hoveredId changes (strip-card hover path).
+  // Double-rAF ensures the pill class update and layout have both settled.
   useEffect(() => {
-    document.querySelectorAll(".price-pill").forEach((el) => {
-      el.classList.toggle("selected", el.getAttribute("data-id") === String(selectedId));
-    });
-  }, [selectedId]);
+    if (hoveredId !== null) {
+      requestAnimationFrame(() => requestAnimationFrame(() => computeLine(hoveredId)));
+    } else if (selectedId === null) {
+      setLineCoords(null);
+    }
+  }, [hoveredId, selectedId, computeLine]);
 
   const selectedProp = properties.find((p) => p.id === selectedId);
 
@@ -190,6 +251,7 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
           <circle cx={lineCoords.x1} cy={lineCoords.y1} r="4" fill="#1a8a7a" />
         </svg>
       )}
+
       {/* Map */}
       <div className="relative w-full h-[500px] lg:h-[600px]">
         <div ref={mapContainerRef} className="absolute inset-0 z-0" />
@@ -239,7 +301,7 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
         </div>
       </div>
 
-      {/* Suggested Properties Strip */}
+      {/* Nearby Properties Strip */}
       <div className="border-t border-border bg-card">
         <div className="px-4 py-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground">Nearby Properties</h3>
@@ -252,13 +314,17 @@ export function JerseyMap({ properties, onPropertyClick }: JerseyMapProps) {
           {properties.slice(0, 8).map((prop) => (
             <motion.div
               key={prop.id}
-              onMouseEnter={() => setHoveredId(prop.id)}
-              onMouseLeave={() => setHoveredId(null)}
+              onMouseEnter={() => {
+                setHoveredId(prop.id);
+              }}
+              onMouseLeave={() => {
+                setHoveredId(null);
+                setLineCoords(null);
+              }}
               onClick={() => {
-                setSelectedId(prop.id);
-                // Pan map to property
-                const coords = getPropertyCoords(prop);
-                mapRef.current?.panTo([coords.lat, coords.lng], { animate: true });
+                setSelectedId((prev) => (prev === prop.id ? null : prop.id));
+                setHoveredId(null);
+                requestAnimationFrame(() => requestAnimationFrame(() => computeLine(prop.id)));
               }}
               whileHover={{ y: -4 }}
               data-property-id={prop.id}
