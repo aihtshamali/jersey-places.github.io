@@ -144,11 +144,11 @@ export function Header() {
                   </div>
                 ))}
                 <div className="pt-4 px-4 flex gap-2">
-                  <Button variant="outline" className="flex-1">
-                    <User className="w-4 h-4 mr-2" />
-                    Sign In
+                  <Button variant="outline" className="flex-1" onClick={() => { navigate("/wishlist"); setMobileMenuOpen(false); }}>
+                    <Heart className="w-4 h-4 mr-2" />
+                    Wishlist
                   </Button>
-                  <Button onClick={handleSearchClick} className="flex-1">
+                  <Button onClick={() => { handleSearchClick(); setMobileMenuOpen(false); }} className="flex-1">
                     <Search className="w-4 h-4 mr-2" />
                     Search
                   </Button>
