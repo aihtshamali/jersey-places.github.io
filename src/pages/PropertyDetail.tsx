@@ -7,10 +7,12 @@ import { Footer } from "@/components/Footer";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { GlassyLogo } from "@/components/GlassyLogo";
+import { MobileStickyCTA } from "@/components/MobileStickyCTA";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useFavorites } from "@/hooks/useFavorites";
+import { toast } from "sonner";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
