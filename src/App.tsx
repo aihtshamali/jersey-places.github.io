@@ -10,6 +10,7 @@ import Agency from "./pages/Agency";
 import Agencies from "./pages/Agencies";
 import Article from "./pages/Article";
 import Articles from "./pages/Articles";
+import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
