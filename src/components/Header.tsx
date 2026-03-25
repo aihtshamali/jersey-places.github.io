@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logo from "/places.logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Menu, X, ChevronDown, User, Heart } from "lucide-react";
@@ -37,7 +38,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src="/places.logo.png" width={"30%"} alt="Jersey Places" />
+            <img src={logo} width={"30%"} alt="Jersey Places" />
           </Link>
 
           {/* Desktop Navigation */}
