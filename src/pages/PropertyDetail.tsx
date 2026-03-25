@@ -7,10 +7,12 @@ import { Footer } from "@/components/Footer";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { GlassyLogo } from "@/components/GlassyLogo";
+import { MobileStickyCTA } from "@/components/MobileStickyCTA";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useFavorites } from "@/hooks/useFavorites";
+import { toast } from "sonner";
 
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
@@ -207,6 +209,18 @@ export default function PropertyDetail() {
         </div>
       </main>
       <Footer />
+
+      {/* Mobile Sticky CTA */}
+      <MobileStickyCTA
+        agencyName={propertyData.agency.name}
+        agentName={propertyData.agency.agent}
+        phone={propertyData.agency.phone}
+        propertyAddress={propertyData.address}
+        parish={propertyData.parish}
+      />
+
+      {/* Bottom padding for sticky CTA on mobile */}
+      <div className="h-20 lg:hidden" />
     </div>
   );
 }
