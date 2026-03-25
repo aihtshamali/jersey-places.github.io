@@ -8,9 +8,11 @@ import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { GlassyLogo } from "@/components/GlassyLogo";
 import { MobileStickyCTA } from "@/components/MobileStickyCTA";
+import { EnquiryForm, type EnquiryFormData } from "@/components/EnquiryForm";
+import { SimilarPropertiesDialog } from "@/components/SimilarPropertiesDialog";
+import { AreaPriceStats } from "@/components/AreaPriceStats";
+import { AgentStats } from "@/components/AgentStats";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useFavorites } from "@/hooks/useFavorites";
 import { toast } from "sonner";
 
@@ -59,14 +61,20 @@ const similarProperties = [
 export default function PropertyDetail() {
   const { id } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: `I'm interested in ${propertyData.address}, ${propertyData.parish}. Please contact me with more details.` });
+  const [showSimilarDialog, setShowSimilarDialog] = useState(false);
+  const [enquirerName, setEnquirerName] = useState("");
+
+  const handleEnquirySubmit = (data: EnquiryFormData) => {
+    setEnquirerName(data.name);
+    toast.success("Enquiry sent! The agent will be in touch shortly.");
+    setShowSimilarDialog(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <main className="pb-16">
-        {/* Photo Gallery */}
         <PropertyGallery images={propertyData.images} address={propertyData.address} />
 
         <div className="container mx-auto px-4 sm:px-6 py-8">
@@ -137,6 +145,19 @@ export default function PropertyDetail() {
                 </div>
               </motion.div>
 
+              {/* Area Price Stats */}
+              <AreaPriceStats
+                parish={propertyData.parish}
+                beds={propertyData.beds}
+                currentPrice={propertyData.price}
+              />
+
+              {/* Agent Stats */}
+              <AgentStats
+                agentName={propertyData.agency.agent}
+                agencyName={propertyData.agency.name}
+              />
+
               {/* Listing Info */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                 <span className="flex items-center gap-2">
@@ -164,13 +185,11 @@ export default function PropertyDetail() {
                   </div>
                 </div>
 
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                  <Input placeholder="Your name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                  <Input type="email" placeholder="Your email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                  <Input type="tel" placeholder="Your phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                  <Textarea rows={4} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} />
-                  <Button className="w-full">Send Enquiry</Button>
-                </form>
+                <EnquiryForm
+                  propertyAddress={propertyData.address}
+                  parish={propertyData.parish}
+                  onSubmit={handleEnquirySubmit}
+                />
 
                 <div className="flex gap-3 mt-4">
                   <Button variant="outline" className="flex-1 gap-2">
@@ -217,6 +236,15 @@ export default function PropertyDetail() {
         phone={propertyData.agency.phone}
         propertyAddress={propertyData.address}
         parish={propertyData.parish}
+        onEnquirySubmit={handleEnquirySubmit}
+      />
+
+      {/* Similar Properties Dialog */}
+      <SimilarPropertiesDialog
+        open={showSimilarDialog}
+        onOpenChange={setShowSimilarDialog}
+        properties={similarProperties}
+        enquirerName={enquirerName}
       />
 
       {/* Bottom padding for sticky CTA on mobile */}

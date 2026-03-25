@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { toast } from "sonner";
+import { EnquiryForm, type EnquiryFormData } from "@/components/EnquiryForm";
 
 interface MobileStickyCTAProps {
   agencyName: string;
@@ -12,20 +10,15 @@ interface MobileStickyCTAProps {
   phone: string;
   propertyAddress: string;
   parish: string;
+  onEnquirySubmit?: (data: EnquiryFormData) => void;
 }
 
-export function MobileStickyCTA({ agencyName, agentName, phone, propertyAddress, parish }: MobileStickyCTAProps) {
+export function MobileStickyCTA({ agencyName, agentName, phone, propertyAddress, parish, onEnquirySubmit }: MobileStickyCTAProps) {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: `Hi, I'm interested in ${propertyAddress}, ${parish}.` });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email) {
-      toast.error("Please fill in your name and email");
-      return;
-    }
-    toast.success("Enquiry sent! The agent will be in touch shortly.");
+  const handleSubmit = (data: EnquiryFormData) => {
     setOpen(false);
+    onEnquirySubmit?.(data);
   };
 
   return (
@@ -43,40 +36,13 @@ export function MobileStickyCTA({ agencyName, agentName, phone, propertyAddress,
               <SheetTitle className="text-lg">Quick Enquiry</SheetTitle>
               <p className="text-sm text-muted-foreground">{agencyName} · {agentName}</p>
             </SheetHeader>
-            <form className="space-y-3 pt-4" onSubmit={handleSubmit}>
-              <Input
-                placeholder="Your name *"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="h-12 rounded-xl text-base"
-                autoComplete="name"
-              />
-              <Input
-                type="email"
-                placeholder="Your email *"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="h-12 rounded-xl text-base"
-                autoComplete="email"
-              />
-              <Input
-                type="tel"
-                placeholder="Phone (optional)"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="h-12 rounded-xl text-base"
-                autoComplete="tel"
-              />
-              <Textarea
-                rows={3}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="rounded-xl text-base"
-              />
-              <Button type="submit" className="w-full h-12 text-base font-semibold rounded-xl">
-                Send Enquiry
-              </Button>
-            </form>
+            <EnquiryForm
+              propertyAddress={propertyAddress}
+              parish={parish}
+              onSubmit={handleSubmit}
+              className="pt-4"
+              inputClassName="h-12 rounded-xl text-base"
+            />
           </SheetContent>
         </Sheet>
 
