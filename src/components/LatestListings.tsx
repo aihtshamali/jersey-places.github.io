@@ -3,6 +3,7 @@ import { Grid, Map } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
+import { JerseyMap } from "./JerseyMap";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";
 
@@ -157,18 +158,26 @@ export function LatestListings() {
           </div>
         )}
 
-        {/* Map View Placeholder */}
+        {/* Map View */}
         {viewMode === "map" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="h-[500px] rounded-2xl bg-muted flex items-center justify-center"
           >
-            <div className="text-center text-muted-foreground">
-              <Map className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-lg font-medium">Map View</p>
-              <p className="text-sm">Interactive map coming soon</p>
-            </div>
+            <JerseyMap
+              properties={latestListings.map((p) => ({
+                id: p.id,
+                lat: 0,
+                lng: 0,
+                price: p.price,
+                address: p.address,
+                parish: p.parish,
+                beds: p.beds,
+                baths: p.baths,
+                image: p.image,
+              }))}
+              onPropertyClick={() => {}}
+            />
           </motion.div>
         )}
 
