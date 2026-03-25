@@ -209,6 +209,18 @@ export default function PropertyDetail() {
         </div>
       </main>
       <Footer />
+
+      {/* Mobile Sticky CTA */}
+      <MobileStickyCTA
+        agencyName={propertyData.agency.name}
+        agentName={propertyData.agency.agent}
+        phone={propertyData.agency.phone}
+        propertyAddress={propertyData.address}
+        parish={propertyData.parish}
+      />
+
+      {/* Bottom padding for sticky CTA on mobile */}
+      <div className="h-20 lg:hidden" />
     </div>
   );
 }
