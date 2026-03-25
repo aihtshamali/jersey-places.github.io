@@ -85,7 +85,7 @@ export function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
+            <Button variant="ghost" size="icon" className="hidden sm:flex" onClick={() => navigate("/wishlist")} aria-label="Wishlist">
               <Heart className="w-5 h-5" />
             </Button>
             <Button variant="ghost" size="icon" className="hidden sm:flex">
